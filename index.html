@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Reels to Content Ideas Automation</title>
+  <meta name="description" content="Turn copied reel links into AI-generated content angles, a Google Sheet content list, and a Telegram notification with a simple content automation system.">
+  <meta property="og:title" content="Saved Reels to Content Ideas Automation">
+  <meta property="og:description" content="Stop saving ideas and start turning copied reel links into content angles, a Google Sheet list, and Telegram notifications.">
+  <meta property="og:type" content="website">
+  <!-- Replace these Open Graph URLs with the published page URL and social preview image. -->
+  <meta property="og:url" content="https://example.com/">
+  <meta property="og:image" content="https://example.com/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090a0f;
+      --panel: #11141c;
+      --panel-soft: #151a24;
+      --text: #f7f8fb;
+      --muted: #aeb6c8;
+      --line: rgba(255, 255, 255, 0.12);
+      --accent: #36e1b9;
+      --accent-strong: #7cf7d6;
+      --accent-dark: #07251f;
+      --warm: #ffd166;
+      --danger: #ff7b7b;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+      --radius: 8px;
+      --max: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(54, 225, 185, 0.14), transparent 28rem),
+        linear-gradient(180deg, #090a0f 0%, #0d1118 45%, #090a0f 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      overflow: hidden;
+    }
+
+    .section {
+      padding: 4.5rem 1.25rem;
+    }
+
+    .section:first-child {
+      padding-top: 3rem;
+    }
+
+    .container {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: grid;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: fit-content;
+      margin: 0 0 1rem;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid rgba(54, 225, 185, 0.35);
+      border-radius: 999px;
+      background: rgba(54, 225, 185, 0.08);
+      color: var(--accent-strong);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(54, 225, 185, 0.8);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin-bottom: 1.1rem;
+      font-size: clamp(2.45rem, 12vw, 5.85rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: clamp(2rem, 7vw, 3.6rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin-bottom: 0.6rem;
+      font-size: 1.15rem;
+      line-height: 1.25;
+    }
+
+    .subheadline {
+      max-width: 720px;
+      margin-bottom: 1.75rem;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 3vw, 1.35rem);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3.25rem;
+      padding: 0.9rem 1.15rem;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #06110f;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 14px 42px rgba(54, 225, 185, 0.26);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-2px);
+      background: var(--accent-strong);
+      box-shadow: 0 18px 54px rgba(54, 225, 185, 0.34);
+    }
+
+    .button.secondary {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .button.secondary:hover,
+    .button.secondary:focus-visible {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
+    .note {
+      margin: 0.95rem 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .hero-panel {
+      display: grid;
+      gap: 1rem;
+      padding: 0;
+    }
+
+    .mini-card {
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .mini-label {
+      margin-bottom: 0.35rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .mini-value {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.1rem;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .section-intro {
+      max-width: 780px;
+      margin-bottom: 2rem;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .problem-wrap {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 0.8rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem;
+      align-items: start;
+      padding: 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.04);
+      color: #dfe4ee;
+    }
+
+    .checklist li::before {
+      content: "";
+      width: 0.72rem;
+      height: 0.72rem;
+      margin-top: 0.42rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0.32rem rgba(54, 225, 185, 0.13);
+    }
+
+    .flow {
+      display: grid;
+      gap: 0.85rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-soft);
+      font-weight: 800;
+    }
+
+    .flow-step span {
+      display: block;
+      margin-top: 0.25rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .reliability-note {
+      padding: 1rem;
+      border: 1px solid rgba(255, 209, 102, 0.32);
+      border-radius: var(--radius);
+      background: rgba(255, 209, 102, 0.08);
+      color: #fff4d2;
+    }
+
+    .plans {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .pricing-card {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .pricing-card.featured {
+      border-color: rgba(54, 225, 185, 0.58);
+      background:
+        linear-gradient(180deg, rgba(54, 225, 185, 0.13), rgba(17, 20, 28, 0.98) 34%),
+        var(--panel);
+      box-shadow: 0 26px 90px rgba(54, 225, 185, 0.13);
+    }
+
+    .plan-tag {
+      width: fit-content;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(54, 225, 185, 0.11);
+      color: var(--accent-strong);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .price {
+      margin: 0;
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .positioning {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .includes {
+      display: grid;
+      gap: 0.65rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .includes li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.6rem;
+      color: #dce2ec;
+    }
+
+    .includes li::before {
+      content: "";
+      width: 0.54rem;
+      height: 0.54rem;
+      margin-top: 0.48rem;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0.22rem rgba(54, 225, 185, 0.14);
+    }
+
+    .plan-note {
+      margin: 0;
+      padding: 0.85rem;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.055);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .pricing-card .button {
+      margin-top: auto;
+      width: 100%;
+    }
+
+    .faq {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.045);
+      overflow: hidden;
+    }
+
+    summary {
+      cursor: pointer;
+      padding: 1rem;
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    details p {
+      margin: 0;
+      padding: 0 1rem 1rem;
+      color: var(--muted);
+    }
+
+    footer {
+      padding: 2rem 1.25rem;
+      border-top: 1px solid var(--line);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .footer-inner {
+      display: grid;
+      gap: 1rem;
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      color: var(--muted);
+    }
+
+    .footer-inner p {
+      margin: 0;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem 1.1rem;
+    }
+
+    .footer-links a {
+      color: #dfe4ee;
+      text-decoration: none;
+    }
+
+    .footer-links a:hover,
+    .footer-links a:focus-visible {
+      color: var(--accent-strong);
+    }
+
+    @media (min-width: 760px) {
+      .section {
+        padding: 6rem 2rem;
+      }
+
+      .section:first-child {
+        padding-top: 4rem;
+      }
+
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+        align-items: center;
+      }
+
+      .hero-panel {
+        padding: 0;
+      }
+
+      .problem-wrap {
+        grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+        align-items: start;
+      }
+
+      .flow {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .plans {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: stretch;
+      }
+
+      .pricing-card.featured {
+        transform: translateY(-0.5rem);
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+    }
+
+    @media (min-width: 1040px) {
+      .flow {
+        grid-template-columns: repeat(6, 1fr);
+      }
+
+      .flow-step:not(:last-child)::after {
+        content: ">";
+        position: absolute;
+        top: 50%;
+        right: -0.8rem;
+        z-index: 2;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #06110f;
+        font-weight: 900;
+        line-height: 1.55rem;
+        text-align: center;
+        transform: translateY(-50%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="section hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Saved Reels to Content Ideas Automation</p>
+          <h1 id="hero-title">Stop Saving Ideas. Start Turning Them Into Content.</h1>
+          <p class="subheadline">Turn copied reel links into AI-generated content angles, a Google Sheet content list, and a Telegram notification.</p>
+          <div class="button-row">
+            <a class="button" href="https://mezzoabid.gumroad.com/l/hqlqqo?_gl=1*19ngret*_ga*MTc1Mjk5Mzc4Mi4xNzgzNDU1NDMz*_ga_6LJN6D94N6*czE3ODM3MDk1NDUkbzUkZzEkdDE3ODM3MTA4ODQkajUyJGwwJGgw">Get the Free PDF</a>
+          </div>
+          <p class="note">Delivered through Gumroad. Enter your email there to receive the PDF automatically.</p>
+        </div>
+        <aside class="hero-panel" aria-label="Automation outcome">
+          <div class="mini-card">
+            <div class="mini-label">Input</div>
+            <p class="mini-value">Copied reel link plus a short creator note</p>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Processing</div>
+            <p class="mini-value">n8n sends the idea to OpenRouter for content angles</p>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Output</div>
+            <p class="mini-value">Google Sheet row and Telegram notification</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="problem-title">
+      <div class="container problem-wrap">
+        <div>
+          <h2 id="problem-title">Your saved reels are not a content strategy.</h2>
+          <p class="section-intro">Saving inspiration is easy. Turning it into recorded content is where most creators disappear. This system gives every saved idea a destination and a next action.</p>
+        </div>
+        <ul class="checklist" aria-label="Problem checklist">
+          <li>Copy the reel link</li>
+          <li>Add a short note</li>
+          <li>Send it to n8n</li>
+          <li>Get 3 AI-generated angles</li>
+          <li>Save it in Google Sheets</li>
+          <li>Receive a Telegram notification</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="how-title">
+      <div class="container">
+        <h2 id="how-title">How it works</h2>
+        <p class="section-intro">A simple capture path turns scattered inspiration into a content list you can actually record from.</p>
+        <div class="flow" aria-label="Automation flow">
+          <div class="flow-step">Copy Link</div>
+          <div class="flow-step">Apple Shortcuts on iPhone<span>or capture method</span></div>
+          <div class="flow-step">n8n</div>
+          <div class="flow-step">OpenRouter</div>
+          <div class="flow-step">Google Sheets</div>
+          <div class="flow-step">Telegram</div>
+        </div>
+        <p class="reliability-note">The reliable version does not automatically read the Instagram Saved folder. It starts by copying the reel link.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="plans-title">
+      <div class="container">
+        <h2 id="plans-title">Plans</h2>
+        <p class="section-intro">Choose the version that matches how hands-on you want to be.</p>
+        <div class="plans">
+          <article class="pricing-card">
+            <div>
+              <h3>Free Starter</h3>
+              <p class="price">$0</p>
+            </div>
+            <ul class="includes">
+              <li>Free PDF</li>
+              <li>Workflow map</li>
+              <li>Tool list</li>
+              <li>Sheet columns</li>
+              <li>Basic checklist</li>
+            </ul>
+            <a class="button secondary" href="https://mezzoabid.gumroad.com/l/hqlqqo?_gl=1*19ngret*_ga*MTc1Mjk5Mzc4Mi4xNzgzNDU1NDMz*_ga_6LJN6D94N6*czE3ODM3MDk1NDUkbzUkZzEkdDE3ODM3MTA4ODQkajUyJGwwJGgw">Get the Free PDF</a>
+          </article>
+
+          <article class="pricing-card featured">
+            <p class="plan-tag">Featured</p>
+            <div>
+              <h3>Premium Workflow Pack</h3>
+              <p class="price">$9</p>
+              <p class="positioning">Best for iPhone users who want to build the self-setup version using the Apple Shortcuts app.</p>
+            </div>
+            <ul class="includes">
+              <li>Premium guide PDF</li>
+              <li>Sanitized n8n workflow template</li>
+              <li>OpenRouter prompt</li>
+              <li>Code parser</li>
+              <li>Telegram message template</li>
+              <li>Troubleshooting checklist</li>
+            </ul>
+            <p class="plan-note">Designed first for iPhone using the free Apple Shortcuts app. Android buyers should choose Done-for-You.</p>
+            <a class="button" href="https://mezzoabid.gumroad.com/l/rdqksw?_gl=1*19ngret*_ga*MTc1Mjk5Mzc4Mi4xNzgzNDU1NDMz*_ga_6LJN6D94N6*czE3ODM3MDk1NDUkbzUkZzEkdDE3ODM3MTA4ODQkajUyJGwwJGgw">Get the Premium Pack</a>
+          </article>
+
+          <article class="pricing-card">
+            <div>
+              <h3>Done-for-You Setup</h3>
+              <p class="price">$99</p>
+              <p class="positioning">Best for iPhone or Android users who want setup help inside their own accounts.</p>
+            </div>
+            <ul class="includes">
+              <li>n8n setup guidance</li>
+              <li>OpenRouter connection guidance</li>
+              <li>Google Sheet mapping</li>
+              <li>Telegram notification setup</li>
+              <li>Device-based capture method</li>
+              <li>One real test</li>
+              <li>Short handover notes</li>
+            </ul>
+            <p class="plan-note">The workflow stays inside the buyer's own n8n account or server.</p>
+            <a class="button secondary" href="https://mezzoabid.gumroad.com/l/kgrstg?_gl=1*53krk8*_ga*MTc1Mjk5Mzc4Mi4xNzgzNDU1NDMz*_ga_6LJN6D94N6*czE3ODM3MDk1NDUkbzUkZzEkdDE3ODM3MTA4ODQkajUyJGwwJGgw">Book Setup</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <div class="container">
+        <h2 id="faq-title">FAQ</h2>
+        <div class="faq">
+          <details>
+            <summary>Does it automatically read Instagram saved reels?</summary>
+            <p>No. The reliable version uses Copy Link -> phone capture -> n8n.</p>
+          </details>
+          <details>
+            <summary>Do I need paid ChatGPT?</summary>
+            <p>No. It can start with OpenRouter free models.</p>
+          </details>
+          <details>
+            <summary>Which iPhone app is used?</summary>
+            <p>The Premium self-setup uses the free Apple Shortcuts app to send the copied reel link to n8n.</p>
+          </details>
+          <details>
+            <summary>Is Android included in Premium?</summary>
+            <p>The Premium self-setup guide is iPhone-first. Android is handled through Done-for-You.</p>
+          </details>
+          <details>
+            <summary>Where does the workflow run?</summary>
+            <p>In the buyer's own n8n account or server, such as n8n Cloud, Hostinger/VPS, or self-hosted n8n.</p>
+          </details>
+          <details>
+            <summary>What is Done-for-You?</summary>
+            <p>Setup help inside the buyer's own accounts. The buyer keeps ownership of credentials and workflow.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p>Built for creators who collect too many ideas and record too few.</p>
+      <nav class="footer-links" aria-label="Footer links">
+        <!-- Replace PRIVACY_POLICY_LINK with the live policy URL when available. -->
+        <a href="mailto:mezz4business@gmail.com">Contact</a>
+        <a href="https://www.instagram.com/mezz_abid/">Instagram</a>
+        <a href="PRIVACY_POLICY_LINK">Privacy Policy</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
